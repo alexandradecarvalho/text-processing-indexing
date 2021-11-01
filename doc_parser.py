@@ -6,5 +6,5 @@ class DocParser:
     def read_file(self):
         return self.file.read()
     
-    def close_file():
+    def close_file(self):
         self.file.close()
