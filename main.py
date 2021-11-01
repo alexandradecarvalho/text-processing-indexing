@@ -26,3 +26,8 @@ contents_tokenized= {key:tokenizer.tokenize(text['review_body'])+tokenizer.token
 
 index= Index()
 print(index.indexer(contents_tokenized, "out.txt"))
+#print(contents)
+
+tokenizer = Tokenizer()
+token_list = tokenizer.tokenize(contents)
+print(token_list)
