@@ -6,9 +6,6 @@ class Tokenizer:
         self.stopwords = {}
         self.token_list = []
 
-    def word_split(self, doc):
-        return doc.split("[\\p{Punct}\\s]+")
-
     def tokenize(self, doc, option = ""):
         if not option:
             try:
@@ -22,7 +19,6 @@ class Tokenizer:
             self.stopwords = option # TBD: is option passed as a set?? isn't it a string?? in that case, does the string has brackets??
 
         text_tokens = re.split('\W+', doc)
-
         tokens_without_sw = [word for word in text_tokens if not word in self.stopwords]
 
         return tokens_without_sw
