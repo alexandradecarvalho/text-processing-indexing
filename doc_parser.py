@@ -1,6 +1,6 @@
 """
 Information Retrieval Assignment 1 2021/2022
-Authors: Alexandra Carvalho, Margarida martins
+Authors: Alexandra Carvalho, Margarida Martins
 
 Class DocParser opens a tsv file and reads it returning a dictionary 
 with review_id as key and review_headline and review_body as values
