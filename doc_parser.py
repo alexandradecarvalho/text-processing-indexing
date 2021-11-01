@@ -8,5 +8,5 @@ class DocParser:
     def read_file_csv(self):
         return csv.DictReader(self.file,  dialect='unix')
     
-    def close_file():
+    def close_file(self):
         self.file.close()
