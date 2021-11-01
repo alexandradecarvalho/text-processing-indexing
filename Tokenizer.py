@@ -6,21 +6,32 @@ class Tokenizer:
         self.stopwords = {}
         self.token_list = []
 
-    def tokenize(self, doc, option = ""):
+    def tokenize(self, doc, filter = 3, option = ""):
+        ##### CREATING STOPWORDS LIST #####
         if not option:
             try:
                 f = open('stopwords.txt','r')
                 self.stopwords = f.readlines()
             except IOError:
                 self.stopwords = {'a', 'the', 'is', 'are', 'who', 'i', 'a', 'an'}
-        elif option == "not":
+        elif option == "disable":
             self.stopwords = {}
         else:
-            self.stopwords = option # TBD: is option passed as a set?? isn't it a string?? in that case, does the string has brackets??
+            self.stopwords = set(option.replace('{','').replace('}','').replace(' ','').split(','))
 
+        ##### SPLITTING BY SPACES AND PUNCTUATION #####
         text_tokens = re.split('\W+', doc)
-        tokens_without_sw = [word for word in text_tokens if not word in self.stopwords]
-
-        return tokens_without_sw
-
         
+        ##### FILTERING SMALL WORDS #####
+        try:
+            length_threshold = int(filter)
+        except ValueError:
+            if filter != "disable":
+                length_threshold = 3 #default
+            else:
+                length_threshold = 0
+        
+        self.token_list = [word for word in text_tokens if len(word) > length_threshold and not word in self.stopwords]
+
+        return self.token_list
+
