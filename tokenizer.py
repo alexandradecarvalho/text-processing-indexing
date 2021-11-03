@@ -6,7 +6,9 @@ Class Tokenizer tokenizes each document of a given corpus, filtering small words
 spaces and punctuation and returns a list of tokens
 """
 
+
 import re
+
 
 class Tokenizer:
 

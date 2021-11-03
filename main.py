@@ -6,7 +6,8 @@ Authors: Alexandra Carvalho, Margarida Martins
 
 from doc_parser import DocParser
 from argparse import ArgumentParser
-from Tokenizer import Tokenizer
+from tokenizer import Tokenizer
+from porter_stemmer import PorterStemmer
 from index import Index
 
 arg_parser=ArgumentParser(prog='index creator')
@@ -26,7 +27,6 @@ contents_tokenized= {key:tokenizer.tokenize(text['review_body'])+tokenizer.token
 
 index= Index()
 print(index.indexer(contents_tokenized, "out.txt"))
-#print(contents)
 
 tokenizer = Tokenizer()
 token_list = tokenizer.tokenize(contents)
