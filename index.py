@@ -9,9 +9,11 @@ import psutil
 
 class Index:
 
-    def indexer(self, documents, out_file):
-        output_file=open(out_file, "w")
+    def indexer(self, documents, out_file, threashold):
+        
         dictionary=dict()
+        npostings=0
+        i=0
 
         for doc_id,token_list in documents.items():
             pos=0
@@ -21,5 +23,16 @@ class Index:
                 else:
                     dictionary[token] = {(doc_id,pos)}
                 pos+=1
-        output_file.write(str(dictionary))
+                npostings+=1
+
+            if (not threashold and psutil.virtual_memory().percent >= 90) or (threashold and npostings >= threashold) :
+                #TODO Order dict
+                output_file=open(out_file+str(i), "w")
+                output_file.write(str(dictionary))
+                output_file.close()
+                dictionary=dict()
+                npostings=0
+                i+=1
+
+        # TODO merge()
         return dictionary
