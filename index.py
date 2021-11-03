@@ -5,11 +5,13 @@ Authors: Alexandra Carvalho, Margarida Martins
 Class Index
 """
 
+import psutil
+
 class Index:
 
     def indexer(self, documents, out_file):
-        dictionary=dict()
         output_file=open(out_file, "w")
+        dictionary=dict()
 
         for doc_id,token_list in documents.items():
             pos=0
@@ -17,8 +19,7 @@ class Index:
                 if token in dictionary:
                     dictionary[token].add((doc_id, pos))
                 else:
-                    dictionary[token]= {(doc_id,pos)}
+                    dictionary[token] = {(doc_id,pos)}
                 pos+=1
         output_file.write(str(dictionary))
         return dictionary
-

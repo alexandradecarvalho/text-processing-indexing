@@ -20,25 +20,20 @@ class Tokenizer:
 
         ##### CREATING STOPWORDS LIST #####
         if not option:
+            self.stopwords = set()
+        else:
             try:
-                f = open('stopwords.txt','r')
+                f = open(option,'r')
                 self.stopwords = f.readlines()
                 f.close()
-            except IOError:
-                self.stopwords = {'a', 'the', 'is', 'are', 'who', 'i', 'a', 'an'}
-        elif option == "disable":
-            self.stopwords = {}
-        else:
-            self.stopwords = set(option.replace('{','').replace('}','').replace(' ','').split(','))
-
+            except:
+                self.stopwords = set()
+        
         ##### FILTERING SMALL WORDS #####
-        try:
+        if not filter:
+            length_threshold = 0
+        else:
             length_threshold = int(filter)
-        except ValueError:
-            if filter != "disable":
-                length_threshold = 3 #default
-            else:
-                length_threshold = 0
 
         ##### SPLITTING BY SPACES AND PUNCTUATION #####
         text_tokens = re.split('\W+', doc) 

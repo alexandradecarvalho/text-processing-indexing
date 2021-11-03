@@ -25,16 +25,16 @@ parser.close_file()
 
 print("---TOKENIZING DOCUMENTS--")
 tokenizer = Tokenizer()
-contents_tokenized= {key:tokenizer.tokenize(text['review_body'])+tokenizer.tokenize(text['review_headline']) for key,text in contents.items()}
+contents_tokenized= {key:tokenizer.tokenize(text['review_body'] + text['review_headline'], filter=args.length, option=args.stopword) for key,text in contents.items()}
 print(contents_tokenized)
 
 print("---STEMMING TOKENS--")
 stemmer = PorterStemmer()
-stemmed_tokens = {docID:stemmer.stem(token_list) for docID,token_list in contents_tokenized.items()}
+stemmed_tokens = {docID:stemmer.stem(token_list, option=args.p) for docID,token_list in contents_tokenized.items()}
 print(stemmed_tokens)
 
 print("---INDEXING--")
 index= Index()
-print(index.indexer(contents_tokenized, "out.txt"))
+print(index.indexer(stemmed_tokens, "out.txt"))
 
 

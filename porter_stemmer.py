@@ -15,7 +15,7 @@ class PorterStemmer:
         self.stem_words = dict()
 
     def stem(self, tokens_list, option="snowball"):
-        if option == "snowball":
+        if option:
             self.stem_words = [self.snow_stemmer.stem(word) for word in tokens_list]
         else:
             self.stem_words = tokens_list
