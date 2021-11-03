@@ -14,12 +14,10 @@ class PorterStemmer:
         self.snow_stemmer = SnowballStemmer(language='english')
         self.stem_words = dict()
 
-    def stemmer(self, tokens, option="snowball"):
+    def stem(self, tokens_list, option="snowball"):
         if option == "snowball":
-            for doc_id,token_list in tokens.items():
-                for word in token_list:
-                    self.stem_words[doc_id] = self.stem_words.get(doc_id, []) + [self.snow_stemmer.stem(word)]
+            self.stem_words = [self.snow_stemmer.stem(word) for word in tokens_list]
         else:
-            self.stem_words = tokens
+            self.stem_words = tokens_list
 
         return self.stem_words

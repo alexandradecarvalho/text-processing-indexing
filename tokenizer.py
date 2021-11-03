@@ -14,9 +14,9 @@ class Tokenizer:
 
     def __init__(self):
         self.stopwords = {}
-        self.token_lists = dict()
+        self.token_lists = []
 
-    def tokenize(self, docs, filter = 3, option = ""):
+    def tokenize(self, doc, filter = 3, option = ""):
 
         ##### CREATING STOPWORDS LIST #####
         if not option:
@@ -41,9 +41,8 @@ class Tokenizer:
                 length_threshold = 0
 
         ##### SPLITTING BY SPACES AND PUNCTUATION #####
-        for id,doc in docs.items():
-            text_tokens = re.split('\W+', doc['review_headline']) + re.split('\W+', doc['review_body']) 
-            self.token_lists[id] = [word for word in text_tokens if len(word) > length_threshold and not word in self.stopwords]
+        text_tokens = re.split('\W+', doc) 
+        self.token_lists = [word for word in text_tokens if len(word) > length_threshold and not word in self.stopwords]
 
         return self.token_lists
 

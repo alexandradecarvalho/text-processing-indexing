@@ -18,16 +18,23 @@ arg_parser.add_argument('-p',help='Disable porter stemmer', action='store_false'
 args = arg_parser.parse_args()
 
 
+print("---PARSING DOCUMENTS--")
 parser = DocParser(args.file[0])
 contents=parser.read_file_csv()
 parser.close_file()
 
+print("---TOKENIZING DOCUMENTS--")
 tokenizer = Tokenizer()
 contents_tokenized= {key:tokenizer.tokenize(text['review_body'])+tokenizer.tokenize(text['review_headline']) for key,text in contents.items()}
+print(contents_tokenized)
 
+print("---STEMMING TOKENS--")
+stemmer = PorterStemmer()
+stemmed_tokens = {docID:stemmer.stem(token_list) for docID,token_list in contents_tokenized.items()}
+print(stemmed_tokens)
+
+print("---INDEXING--")
 index= Index()
 print(index.indexer(contents_tokenized, "out.txt"))
 
-tokenizer = Tokenizer()
-token_list = tokenizer.tokenize(contents)
-print(token_list)
+
