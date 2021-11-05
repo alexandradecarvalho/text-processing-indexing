@@ -7,13 +7,47 @@ Class Index
 
 import psutil
 import os
+import heapq
 
 class Index:
 
     def merge_files(self, out_file, i):
-        with open(out_file, "w+") as f:
 
+        open_files=[open((str(n) + ".").join(out_file.split('.')),"r") for n in range(i+1)]
+        heap=[]
+        with open(out_file, "w+") as f:
             #going through the temp files
+            [heapq.heappush(heap, (fi.readline(),fi)) for fi in open_files]
+            
+            smallest=heap.pop(0)
+            smallest_word=smallest[0].split()[0]
+            c_smallest_word = smallest_word
+            next_line=smallest[1].readline()
+            f.write(smallest[0].split()[0])
+            if len(next_line)!=0:
+                heapq.heappush(heap,(next_line,smallest[1]))
+
+            while len(heap)>0:
+                if c_smallest_word==smallest_word:
+                    f.write("".join(smallest[0].split()[1:]))
+                else:
+                    f.write("\n")
+                    c_smallest_word= smallest_word
+                    f.write(smallest[0].split()[0])
+                    f.write("".join(smallest[0].split()[1:]))
+                    f.write(" ")
+                  
+                smallest=heap.pop(0)
+                smallest_word=smallest[0].split()[0]
+                next_line=smallest[1].readline()
+                if len(next_line)!=0:
+                    heapq.heappush(heap,(next_line,smallest[1]))
+
+                
+
+        [f.close() for f in open_files]
+
+        """
             for n in range(i+1):
                 sep = str(n) + "."
                 filename = sep.join(out_file.split('.'))
@@ -23,15 +57,17 @@ class Index:
                     line_f=f.readline()
                     line_fi=fi.readline()
                     while line_fi:
-                        print("Linha ficheiro out:",line_f)
-                        print("Linha ficheiro temp:",line_fi)
-                        print(line_fi.split()[0])
-                        while line_f and line_f.split()[0] <  line_fi.split()[0]:
+                        while line_f and len(line_f.split())>0 and line_f.split()[0] <  line_fi.split()[0]:
                             line_f=f.readline()
-                        
-                        if line_f and line_f.split()[0]== line_fi.split()[0]:
-                            pass 
-                        elif not line_f or  line_f.split()[0]>line_fi.split()[0]:
+
+                        if line_f and len(line_f.split())>0 and line_f.split()[0]== line_fi.split()[0]:
+                            print(f.tell())
+                            f.seek(f.tell())
+                            print("".join(line_fi.split()[1:]))
+                            print(line_fi.split()[0])
+                            f.write("".join(line_fi.split()[1:])+"\n")
+                            print(f.tell())
+                        elif not line_f or len(line_f.split())==0 or  line_f.split()[0]>line_fi.split()[0]:
                             f.write(line_fi)
                         
                         line_fi= fi.readline()
@@ -39,7 +75,8 @@ class Index:
 
                 
                 #when we're done, removing it
-                os.remove(filename)
+        """
+        #[os.remove((str(n) + ".").join(out_file.split('.'))) for n in range(i+1)]
                        
     def indexer(self, documents, out_file, threshold):
         
@@ -63,7 +100,7 @@ class Index:
                 
                 #writing the ordered dict in the file
                 for key in sorted(dictionary.keys()):
-                    output_file.write(key + " " + str(dictionary[key]) + "\n")
+                    output_file.write(key + " " + str(dictionary[key]).replace("{","").replace("}","") + "\n")
                 
                 output_file.close()
                 dictionary=dict()
@@ -75,7 +112,7 @@ class Index:
         
         #writing the ordered dict in the file
         for key in sorted(dictionary.keys()):
-            output_file.write(key + " " + str(dictionary[key]) + "\n")
+            output_file.write(key + " " + str(dictionary[key]).replace("{","").replace("}","") + "\n")
         
         output_file.close()
 
