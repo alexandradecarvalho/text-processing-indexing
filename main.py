@@ -36,7 +36,6 @@ stemmed_tokens = {docID:stemmer.stem(token_list, option=args.p) for docID,token_
 
 print("---INDEXING--")
 index= Index()
-index=index.indexer(stemmed_tokens, "out.txt", args.w)
-#print(index)
+index.indexer(stemmed_tokens, "out.txt", args.w)
 
 

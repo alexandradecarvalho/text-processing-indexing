@@ -9,7 +9,7 @@ import psutil
 
 class Index:
 
-    def indexer(self, documents, out_file, threashold):
+    def indexer(self, documents, out_file, threshold):
         
         dictionary=dict()
         npostings=0
@@ -25,10 +25,14 @@ class Index:
                 pos+=1
                 npostings+=1
 
-            if (not threashold and psutil.virtual_memory().percent >= 90) or (threashold and npostings >= threashold) :
-                #TODO Order dict
-                output_file=open(out_file+str(i), "w")
-                output_file.write(str(dictionary))
+            if (not threshold and psutil.virtual_memory().percent >= 90) or (threshold and npostings >= threshold) :
+                print("hi!")
+                output_file=open(str(i).join(out_file.split('.')), "w")
+                
+                #writing the ordered dict in the file
+                for key in sorted(dictionary.keys()):
+                    output_file.write(key + " " + dictionary[key])
+                
                 output_file.close()
                 dictionary=dict()
                 npostings=0
