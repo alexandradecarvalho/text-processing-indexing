@@ -26,12 +26,12 @@ class Index:
                 npostings+=1
 
             if (not threshold and psutil.virtual_memory().percent >= 90) or (threshold and npostings >= threshold) :
-                print("hi!")
-                output_file=open(str(i).join(out_file.split('.')), "w")
+                sep = str(i) + "."
+                output_file=open(sep.join(out_file.split('.')), "w")
                 
                 #writing the ordered dict in the file
                 for key in sorted(dictionary.keys()):
-                    output_file.write(key + " " + dictionary[key])
+                    output_file.write(key + " " + str(dictionary[key]) + "\n")
                 
                 output_file.close()
                 dictionary=dict()
