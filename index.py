@@ -6,9 +6,28 @@ Class Index
 """
 
 import psutil
+import os
 
 class Index:
 
+    def write_to_disk(self, out_file, i):
+        with open(out_file, "r+") as f:
+
+            #going through the temp files
+            for n in range(i):
+                sep = str(i) + "."
+                filename = sep.join(out_file.split('.'))
+
+                #do stuff here
+                with open(filename, "r") as fi:
+                    for line in f:
+                        element = line.split()[0]
+                        while element > fi.split()[0]:  
+                            pass
+                
+                #when we're done, removing it
+                os.remove(filename)
+                       
     def indexer(self, documents, out_file, threshold):
         
         dictionary=dict()
@@ -38,5 +57,6 @@ class Index:
                 npostings=0
                 i+=1
 
-        # TODO merge()
+        #merge files
+        self.write_to_disk()
         return dictionary
