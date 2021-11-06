@@ -9,34 +9,43 @@ import psutil
 import os
 import heapq
 import time
+import resource
 
 class Index:
 
-    def merge_files(self, out_file, i):
-        with open("temp"+out_file, 'w') as output_file:
-            open_files = [open((str(n) + ".").join(out_file.split('.'))) for n in range(i+1)]
+    def merge_files(self, out_file,final_file, i, init=0):
+        print(i)
+        print(init)
+        with open("temp"+out_file, 'w+') as output_file:
+            open_files = [open((str(n) + ".").join(out_file.split('.'))) for n in range(init,i+1)]
             output_file.writelines(heapq.merge(*open_files))
             [f.close() for f in open_files]
 
-        [os.remove((str(n) + ".").join(out_file.split('.'))) for n in range(i+1)]
+        [os.remove((str(n) + ".").join(out_file.split('.'))) for n in range(init,i+1)]
 
-        with open("temp"+out_file, 'r') as temp_file, open(out_file,'w') as output_file:
+        with open("temp"+out_file, 'r') as temp_file, open(final_file,'w') as output_file:
             term = ""
             postings_list = dict()
             for line in temp_file:
                 contents = line.split()
                 if term:
                     if contents[0] == term:
-                        postings_list[term] = postings_list.get(term, []) + [eval("".join(contents[1:]))]
+                        output_file.writelines(contents[1:])
+                        #postings_list[term] = postings_list.get(term, []) + [eval("".join())]
                     else:
-                        output_file.write(str(postings_list)+"\n")
+                        output_file.writelines("\n")
+                        #output_file.write(str(postings_list).replace("[","").replace("]","").replace("{","").replace("}","")+"\n")
                         term = contents[0]
-                        postings_list = dict()
-                        postings_list[term] = [eval("".join(contents[1:]))]
+                        #postings_list = dict()
+                        #postings_list[term] = [eval("".join(contents[1:]))]
+                        output_file.write(contents[0] + " ")
+                        output_file.writelines(contents[1:])
                 else:
                     term = contents[0]
-                    postings_list[term] = [eval("".join(contents[1:]))]
-            output_file.writelines(str(postings_list)+"\n")
+                    output_file.write(contents[0] + " ")
+                    output_file.writelines(contents[1:])
+                    #postings_list[term] = [eval("".join(contents[1:]))]
+            #output_file.writelines(str(postings_list).replace("[","").replace("]","").replace("{","").replace("}","")+"\n")
 
         os.remove("temp"+out_file)
                        
@@ -76,12 +85,19 @@ class Index:
         for key in sorted(dictionary.keys()):
             output_file.write(key + " " + str(dictionary[key]).replace("{","").replace("}","") + "\n")
         
-        output_file.close
+        output_file.close()
 
         #merge files
-        self.merge_files(out_file, i)
+        if i < resource.getrlimit(resource.RLIMIT_NOFILE)[0]:
+            self.merge_files(out_file, out_file,i)
+        else:
+            j=0
+            for j in range((i//(resource.getrlimit(resource.RLIMIT_NOFILE)[0]//2))):
+                self.merge_files(out_file,(str(j) + ".").join(out_file.split('.')),(j+1)*(resource.getrlimit(resource.RLIMIT_NOFILE)[0]//2)-1, j*(resource.getrlimit(resource.RLIMIT_NOFILE)[0]//2))
+            self.merge_files(out_file,(str(j+1) + ".").join(out_file.split('.')),i,(j+1)*(resource.getrlimit(resource.RLIMIT_NOFILE)[0]//2))
+            self.merge_files(out_file,out_file,j+1 )
 
         print(f'Indexing time: {time.time()-init_time} s')
         print(f'Total index size on disk: {os.path.getsize(out_file)/(1024*1024)} MB' )
-        print(f'Temporary index segments: {i}')
+        print(f'Temporary index segments: {i+1}')
         return dictionary
