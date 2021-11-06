@@ -13,73 +13,32 @@ import time
 class Index:
 
     def merge_files(self, out_file, i):
+        with open("temp"+out_file, 'w') as output_file:
+            open_files = [open((str(n) + ".").join(out_file.split('.'))) for n in range(i+1)]
+            output_file.writelines(heapq.merge(*open_files))
+            [f.close() for f in open_files]
 
-        open_files=[open((str(n) + ".").join(out_file.split('.')),"r") for n in range(i+1)]
-        heap=[]
-        with open(out_file, "w+") as f:
-            #going through the temp files
-            [heapq.heappush(heap, (fi.readline(),fi)) for fi in open_files]
-            
-            smallest=heap.pop(0)
-            smallest_word=smallest[0].split()[0]
-            c_smallest_word = smallest_word
-            next_line=smallest[1].readline()
-            f.write(smallest[0].split()[0])
-            if len(next_line)!=0:
-                heapq.heappush(heap,(next_line,smallest[1]))
+        [os.remove((str(n) + ".").join(out_file.split('.'))) for n in range(i+1)]
 
-            while len(heap)>0:
-                if c_smallest_word==smallest_word:
-                    f.write("".join(smallest[0].split()[1:]))
+        with open("temp"+out_file, 'r') as temp_file, open(out_file,'w') as output_file:
+            term = ""
+            postings_list = dict()
+            for line in temp_file:
+                contents = line.split()
+                if term:
+                    if contents[0] == term:
+                        postings_list[term] = postings_list.get(term, []) + [eval("".join(contents[1:]))]
+                    else:
+                        output_file.write(str(postings_list)+"\n")
+                        term = contents[0]
+                        postings_list = dict()
+                        postings_list[term] = [eval("".join(contents[1:]))]
                 else:
-                    f.write("\n")
-                    c_smallest_word= smallest_word
-                    f.write(smallest[0].split()[0])
-                    f.write("".join(smallest[0].split()[1:]))
-                    f.write(" ")
-                  
-                smallest=heap.pop(0)
-                smallest_word=smallest[0].split()[0]
-                next_line=smallest[1].readline()
-                if len(next_line)!=0:
-                    heapq.heappush(heap,(next_line,smallest[1]))
+                    term = contents[0]
+                    postings_list[term] = [eval("".join(contents[1:]))]
+            output_file.writelines(str(postings_list)+"\n")
 
-        with open(out_file) as f:
-            print(f"Vocabulary size: {sum(1 for _ in f)}")
-                
-
-        [f.close() for f in open_files]
-
-        """
-            for n in range(i+1):
-                sep = str(n) + "."
-                filename = sep.join(out_file.split('.'))
-                
-                #do stuff here
-                with open(filename, "r") as fi:
-                    line_f=f.readline()
-                    line_fi=fi.readline()
-                    while line_fi:
-                        while line_f and len(line_f.split())>0 and line_f.split()[0] <  line_fi.split()[0]:
-                            line_f=f.readline()
-
-                        if line_f and len(line_f.split())>0 and line_f.split()[0]== line_fi.split()[0]:
-                            print(f.tell())
-                            f.seek(f.tell())
-                            print("".join(line_fi.split()[1:]))
-                            print(line_fi.split()[0])
-                            f.write("".join(line_fi.split()[1:])+"\n")
-                            print(f.tell())
-                        elif not line_f or len(line_f.split())==0 or  line_f.split()[0]>line_fi.split()[0]:
-                            f.write(line_fi)
-                        
-                        line_fi= fi.readline()
-                f.seek(0)
-
-                
-                #when we're done, removing it
-        """
-        #[os.remove((str(n) + ".").join(out_file.split('.'))) for n in range(i+1)]
+        os.remove("temp"+out_file)
                        
     def indexer(self, documents, out_file, threshold):
         init_time= time.time()
@@ -117,7 +76,7 @@ class Index:
         for key in sorted(dictionary.keys()):
             output_file.write(key + " " + str(dictionary[key]).replace("{","").replace("}","") + "\n")
         
-        output_file.close()
+        output_file.close
 
         #merge files
         self.merge_files(out_file, i)

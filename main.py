@@ -9,6 +9,7 @@ from argparse import ArgumentParser
 from tokenizer import Tokenizer
 from porter_stemmer import PorterStemmer
 from index import Index
+from searcher import Searcher
 
 arg_parser=ArgumentParser(prog='index creator')
 arg_parser.add_argument('-f','--file',nargs=1,help='File of dataset to be used', required=True)
@@ -32,8 +33,12 @@ print("---STEMMING TOKENS--")
 stemmer = PorterStemmer()
 stemmed_tokens = {docID:stemmer.stem(token_list, option=args.p) for docID,token_list in contents_tokenized.items()}
 
+fname_out = "out.txt"
+
 print("---INDEXING--")
 index= Index()
-index.indexer(stemmed_tokens, "out.txt", args.w)
+index.indexer(stemmed_tokens, fname_out, args.w)
 
-
+#print("--SEARCHER--")
+#s = Searcher(fname_out)
+#s.search()
