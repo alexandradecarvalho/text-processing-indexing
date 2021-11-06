@@ -8,6 +8,7 @@ Class Index
 import psutil
 import os
 import heapq
+import time
 
 class Index:
 
@@ -43,6 +44,8 @@ class Index:
                 if len(next_line)!=0:
                     heapq.heappush(heap,(next_line,smallest[1]))
 
+        with open(out_file) as f:
+            print(f"Vocabulary size: {sum(1 for _ in f)}")
                 
 
         [f.close() for f in open_files]
@@ -79,7 +82,7 @@ class Index:
         #[os.remove((str(n) + ".").join(out_file.split('.'))) for n in range(i+1)]
                        
     def indexer(self, documents, out_file, threshold):
-        
+        init_time= time.time()
         dictionary=dict()
         npostings=0
         i=0
@@ -118,4 +121,8 @@ class Index:
 
         #merge files
         self.merge_files(out_file, i)
+
+        print(f'Indexing time: {time.time()-init_time} s')
+        print(f'Total index size on disk: {os.path.getsize(out_file)/(1024*1024)} MB' )
+        print(f'Temporary index segments: {i}')
         return dictionary
