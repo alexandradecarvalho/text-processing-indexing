@@ -30,16 +30,22 @@ class Index:
                 contents = line.split()
                 if term:
                     if contents[0] == term:
-                        output_file.writelines(contents[1:])
+                        term_content= contents[1:]
+                        for term_i in term_content:
+                            term_i=term_i.split(":")
+                            term_info[term_i[0]]= term_info.get(term_i[0],0)+ int(term_i[1].replace(",",""))
                     else:
+                        output_file.writelines(str(term_info).replace("{","").replace("}","").replace(": ",":"))
                         output_file.writelines("\n")
                         term = contents[0]
+                        term_info= contents[1:]
+                        term_info={item.split(":")[0]:int(item.split(":")[1].replace(",","")) for item in term_info}
                         output_file.write(contents[0] + " ")
-                        output_file.writelines(contents[1:])
                 else:
                     term = contents[0]
+                    term_info= contents[1:]
+                    term_info={item.split(":")[0]:int(item.split(":")[1].replace(",","")) for item in term_info}
                     output_file.write(contents[0] + " ")
-                    output_file.writelines(contents[1:])
 
         os.remove("temp"+out_file)
                        
@@ -52,11 +58,10 @@ class Index:
         for doc_id,token_list in documents.items():
             pos=0
             for token in token_list:
-                if token in dictionary:
-                    dictionary[token].add((doc_id, pos))
-                else:
-                    dictionary[token] = {(doc_id,pos)}
-                pos+=1
+                if not token in dictionary: 
+                    dictionary[token] = dict()
+                dictionary[token][doc_id]=dictionary[token].get(doc_id,0)+1
+                
                 npostings+=1
 
             if (not threshold and psutil.virtual_memory().percent >= 90) or (threshold and npostings >= threshold) :
@@ -65,7 +70,7 @@ class Index:
                 
                 #writing the ordered dict in the file
                 for key in sorted(dictionary.keys()):
-                    output_file.write(key + " " + str(dictionary[key]).replace("{","").replace("}","").replace(",","") + "\n")
+                    output_file.write(key + " " + str(dictionary[key]).replace("{","").replace("}","").replace(": ",":") + "\n")
                 
                 output_file.close()
                 dictionary=dict()
@@ -77,7 +82,7 @@ class Index:
         
         #writing the ordered dict in the file
         for key in sorted(dictionary.keys()):
-            output_file.write(key + " " + str(dictionary[key]).replace("{","").replace("}","") + "\n")
+            output_file.write(key + " " + str(dictionary[key]).replace("{","").replace("}","").replace(": ",":") + "\n")
         
         output_file.close()
 
