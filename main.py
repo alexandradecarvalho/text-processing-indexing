@@ -27,7 +27,7 @@ parser.close_file()
 
 print("---TOKENIZING DOCUMENTS--")
 tokenizer = Tokenizer()
-contents_tokenized= {key:tokenizer.tokenize(text['review_body'] + text['review_headline'], filter=args.length, option=args.stopword) for key,text in contents.items()}
+contents_tokenized= {key:tokenizer.tokenize(text, filter=args.length, option=args.stopword) for key,text in contents.items()}
 
 print("---STEMMING TOKENS--")
 stemmer = PorterStemmer()

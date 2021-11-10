@@ -19,7 +19,7 @@ class DocParser:
         reader=csv.DictReader(self.file, delimiter="\t", quoting=csv.QUOTE_NONE)
         
         for row in reader:
-            self.doc_contents[row['review_id']]= {'review_headline':row['review_headline'], 'review_body':row['review_body']}
+            self.doc_contents[row['review_id']] = row['product_title'] + ' ' + row['review_headline'] + ' ' + row['review_body']
         
         return self.doc_contents
 
