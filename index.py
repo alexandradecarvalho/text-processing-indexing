@@ -30,22 +30,22 @@ class Index:
                 contents = line.split()
                 if term:
                     if contents[0] == term:
-                        output_file.writelines(contents[1:])
-                        #postings_list[term] = postings_list.get(term, []) + [eval("".join())]
+                        term_content= contents[1:]
+                        for term_i in term_content:
+                            term_i=term_i.split(":")
+                            term_info[term_i[0]]= term_info.get(term_i[0],0)+ int(term_i[1].replace(",",""))
                     else:
+                        output_file.writelines(str(term_info).replace("{","").replace("}","").replace(": ",":"))
                         output_file.writelines("\n")
-                        #output_file.write(str(postings_list).replace("[","").replace("]","").replace("{","").replace("}","")+"\n")
                         term = contents[0]
-                        #postings_list = dict()
-                        #postings_list[term] = [eval("".join(contents[1:]))]
+                        term_info= contents[1:]
+                        term_info={item.split(":")[0]:int(item.split(":")[1].replace(",","")) for item in term_info}
                         output_file.write(contents[0] + " ")
-                        output_file.writelines(contents[1:])
                 else:
                     term = contents[0]
+                    term_info= contents[1:]
+                    term_info={item.split(":")[0]:int(item.split(":")[1].replace(",","")) for item in term_info}
                     output_file.write(contents[0] + " ")
-                    output_file.writelines(contents[1:])
-                    #postings_list[term] = [eval("".join(contents[1:]))]
-            #output_file.writelines(str(postings_list).replace("[","").replace("]","").replace("{","").replace("}","")+"\n")
 
         os.remove("temp"+out_file)
                        
@@ -58,11 +58,10 @@ class Index:
         for doc_id,token_list in documents.items():
             pos=0
             for token in token_list:
-                if token in dictionary:
-                    dictionary[token].add((doc_id, pos))
-                else:
-                    dictionary[token] = {(doc_id,pos)}
-                pos+=1
+                if not token in dictionary: 
+                    dictionary[token] = dict()
+                dictionary[token][doc_id]=dictionary[token].get(doc_id,0)+1
+                
                 npostings+=1
 
             if (not threshold and psutil.virtual_memory().percent >= 90) or (threshold and npostings >= threshold) :
@@ -71,7 +70,7 @@ class Index:
                 
                 #writing the ordered dict in the file
                 for key in sorted(dictionary.keys()):
-                    output_file.write(key + " " + str(dictionary[key]).replace("{","").replace("}","") + "\n")
+                    output_file.write(key + " " + str(dictionary[key]).replace("{","").replace("}","").replace(": ",":") + "\n")
                 
                 output_file.close()
                 dictionary=dict()
@@ -83,18 +82,20 @@ class Index:
         
         #writing the ordered dict in the file
         for key in sorted(dictionary.keys()):
-            output_file.write(key + " " + str(dictionary[key]).replace("{","").replace("}","") + "\n")
+            output_file.write(key + " " + str(dictionary[key]).replace("{","").replace("}","").replace(": ",":") + "\n")
         
         output_file.close()
 
+        file_threashold= resource.getrlimit(resource.RLIMIT_NOFILE)[0]//2
+
         #merge files
-        if i < resource.getrlimit(resource.RLIMIT_NOFILE)[0]:
+        if i < file_threashold:
             self.merge_files(out_file, out_file,i)
         else:
             j=0
-            for j in range((i//(resource.getrlimit(resource.RLIMIT_NOFILE)[0]//2))):
-                self.merge_files(out_file,(str(j) + ".").join(out_file.split('.')),(j+1)*(resource.getrlimit(resource.RLIMIT_NOFILE)[0]//2)-1, j*(resource.getrlimit(resource.RLIMIT_NOFILE)[0]//2))
-            self.merge_files(out_file,(str(j+1) + ".").join(out_file.split('.')),i,(j+1)*(resource.getrlimit(resource.RLIMIT_NOFILE)[0]//2))
+            for j in range((i//file_threashold)):
+                self.merge_files(out_file,(str(j) + ".").join(out_file.split('.')),(j+1)*(i//file_threashold)-1, j*(file_threashold))
+            self.merge_files(out_file,(str(j+1) + ".").join(out_file.split('.')),i,(j+1)*(file_threashold))
             self.merge_files(out_file,out_file,j+1 )
 
         print(f'Indexing time: {time.time()-init_time} s')
