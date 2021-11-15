@@ -11,17 +11,30 @@ import heapq
 import time
 import resource
 
+from tokenizer import Tokenizer
+from porter_stemmer import PorterStemmer
+
+
 class Index:
 
-    def merge_files(self, out_file,final_file, i, init=0):
-        print(i)
+    def __init__(self):
+        self.dictionary = dict()
+        self.npostings=0
+        self.i = 0
+
+        self.tokenizer = Tokenizer()
+        self.stemmer = PorterStemmer()
+
+    def merge_files(self,out_file, final_file, init=0):
+        print(self.i)
         print(init)
         with open("temp"+out_file, 'w+') as output_file:
-            open_files = [open((str(n) + ".").join(out_file.split('.'))) for n in range(init,i+1)]
+            #print(self.i)
+            open_files = [open((str(n) + ".").join(out_file.split('.'))) for n in range(init,self.i+1)]
             output_file.writelines(heapq.merge(*open_files))
             [f.close() for f in open_files]
 
-        [os.remove((str(n) + ".").join(out_file.split('.'))) for n in range(init,i+1)]
+        [os.remove((str(n) + ".").join(out_file.split('.'))) for n in range(init,self.i+1)]
 
         with open("temp"+out_file, 'r') as temp_file, open(final_file,'w') as output_file:
             term = ""
@@ -48,57 +61,59 @@ class Index:
                     output_file.write(contents[0] + " ")
 
         os.remove("temp"+out_file)
-                       
-    def indexer(self, documents, out_file, threshold):
-        init_time= time.time()
-        dictionary=dict()
-        npostings=0
-        i=0
 
-        for doc_id,token_list in documents.items():
-            pos=0
-            for token in token_list:
-                if not token in dictionary: 
-                    dictionary[token] = dict()
-                dictionary[token][doc_id]=dictionary[token].get(doc_id,0)+1
-                
-                npostings+=1
+    def finalize(self, out_file):
 
-            if (not threshold and psutil.virtual_memory().percent >= 90) or (threshold and npostings >= threshold) :
-                sep = str(i) + "."
-                output_file=open(sep.join(out_file.split('.')), "w")
-                
-                #writing the ordered dict in the file
-                for key in sorted(dictionary.keys()):
-                    output_file.write(key + " " + str(dictionary[key]).replace("{","").replace("}","").replace(": ",":") + "\n")
-                
-                output_file.close()
-                dictionary=dict()
-                npostings=0
-                i+=1
-
-        sep = str(i) + "."
+        sep = str(self.i) + "."
         output_file=open(sep.join(out_file.split('.')), "w")
         
         #writing the ordered dict in the file
-        for key in sorted(dictionary.keys()):
-            output_file.write(key + " " + str(dictionary[key]).replace("{","").replace("}","").replace(": ",":") + "\n")
+        for key in sorted(self.dictionary.keys()):
+            output_file.write(key + " " + str(self.dictionary[key]).replace("{","").replace("}","").replace(": ",":") + "\n")
         
         output_file.close()
 
         file_threashold= resource.getrlimit(resource.RLIMIT_NOFILE)[0]//2
 
         #merge files
-        if i < file_threashold:
-            self.merge_files(out_file, out_file,i)
+        if self.i < file_threashold:
+            self.merge_files(out_file, out_file)
         else:
             j=0
-            for j in range((i//file_threashold)):
-                self.merge_files(out_file,(str(j) + ".").join(out_file.split('.')),(j+1)*(i//file_threashold)-1, j*(file_threashold))
-            self.merge_files(out_file,(str(j+1) + ".").join(out_file.split('.')),i,(j+1)*(file_threashold))
+            for j in range((self.i//file_threashold)):
+                self.merge_files(out_file,(str(j) + ".").join(out_file.split('.')),(j+1)*(self.i//file_threashold)-1, j*(file_threashold))
+            self.merge_files(out_file,(str(j+1) + ".").join(out_file.split('.')),self.i,(j+1)*(file_threashold))
             self.merge_files(out_file,out_file,j+1 )
 
-        print(f'Indexing time: {time.time()-init_time} s')
-        print(f'Total index size on disk: {os.path.getsize(out_file)/(1024*1024)} MB' )
-        print(f'Temporary index segments: {i+1}')
-        return dictionary
+    def indexer(self, docs, out_file, threshold, length, stopwords, p):
+        init_time= time.time()
+
+        documents = {key:self.stemmer.stem(self.tokenizer.tokenize(text, filter=length, option=stopwords), option=p) for key,text in docs.items()}
+
+        for doc_id,token_list in documents.items():
+            pos=0
+            for token in token_list:
+                if not token in self.dictionary: 
+                    self.dictionary[token] = dict()
+                self.dictionary[token][doc_id]=self.dictionary[token].get(doc_id,0)+1
+                
+                self.npostings+=1
+
+            if (not threshold and psutil.virtual_memory().percent >= 90) or (threshold and self.npostings >= threshold) :
+                sep = str(self.i) + "."
+                output_file=open(sep.join(out_file.split('.')), "w")
+                
+                #writing the ordered dict in the file
+                for key in sorted(self.dictionary.keys()):
+                    output_file.write(key + " " + str(self.dictionary[key]).replace("{","").replace("}","").replace(": ",":") + "\n")
+                
+                output_file.close()
+                self.dictionary=dict()
+                self.npostings=0
+                self.i+=1
+
+
+        #print(f'Indexing time: {time.time()-init_time} s')
+        #print(f'Total index size on disk: {os.path.getsize(out_file)/(1024*1024)} MB' )
+        #print(f'Temporary index segments: {i+1}')
+        return self.dictionary

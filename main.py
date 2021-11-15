@@ -20,24 +20,36 @@ arg_parser.add_argument('-w',nargs='?',help='Use number of postings as threashol
 args = arg_parser.parse_args()
 
 
-print("---PARSING DOCUMENTS--")
+#print("---PARSING DOCUMENTS--")
 parser = DocParser(args.file[0])
-contents=parser.read_file_csv()
-parser.close_file()
-
-print("---TOKENIZING DOCUMENTS--")
-tokenizer = Tokenizer()
-contents_tokenized= {key:tokenizer.tokenize(text, filter=args.length, option=args.stopword) for key,text in contents.items()}
-
-print("---STEMMING TOKENS--")
-stemmer = PorterStemmer()
-stemmed_tokens = {docID:stemmer.stem(token_list, option=args.p) for docID,token_list in contents_tokenized.items()}
+index= Index()
 
 fname_out = "out.txt"
 
-print("---INDEXING--")
-index= Index()
-index.indexer(stemmed_tokens, fname_out, args.w)
+nlines = 100
+
+while True:
+    contents=parser.read_file_csv(nlines)
+    if contents:
+        index.indexer(contents, fname_out, args.w, args.length, args.stopword, args.p)
+    else:
+        break
+    
+parser.close_file()
+index.finalize(fname_out)
+
+
+#print("---TOKENIZING DOCUMENTS--")
+
+#contents_tokenized= {key:tokenizer.tokenize(text, filter=args.length, option=args.stopword) for key,text in contents.items()}
+
+#print("---STEMMING TOKENS--")
+
+#stemmed_tokens = {docID:stemmer.stem(token_list, option=args.p) for docID,token_list in contents_tokenized.items()}
+
+
+
+#print("---INDEXING--")
 
 #print("--SEARCHER--")
 #s = Searcher(fname_out)
