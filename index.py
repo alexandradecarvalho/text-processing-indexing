@@ -25,16 +25,14 @@ class Index:
         self.tokenizer = Tokenizer()
         self.stemmer = PorterStemmer()
 
-    def merge_files(self,out_file, final_file, init=0):
-        print(self.i)
-        print(init)
+    def merge_files(self,out_file, final_file,i, init=0):
+
         with open("temp"+out_file, 'w+') as output_file:
-            #print(self.i)
-            open_files = [open((str(n) + ".").join(out_file.split('.'))) for n in range(init,self.i+1)]
+            open_files = [open((str(n) + ".").join(out_file.split('.'))) for n in range(init,i+1)]
             output_file.writelines(heapq.merge(*open_files))
             [f.close() for f in open_files]
 
-        [os.remove((str(n) + ".").join(out_file.split('.'))) for n in range(init,self.i+1)]
+        [os.remove((str(n) + ".").join(out_file.split('.'))) for n in range(init,i+1)]
 
         with open("temp"+out_file, 'r') as temp_file, open(final_file,'w') as output_file:
             term = ""
@@ -52,6 +50,7 @@ class Index:
                         output_file.writelines("\n")
                         term = contents[0]
                         term_info= contents[1:]
+                        print(term_info)
                         term_info={item.split(":")[0]:int(item.split(":")[1].replace(",","")) for item in term_info}
                         output_file.write(contents[0] + " ")
                 else:
@@ -77,7 +76,7 @@ class Index:
 
         #merge files
         if self.i < file_threashold:
-            self.merge_files(out_file, out_file)
+            self.merge_files(out_file, out_file, self.i)
         else:
             j=0
             for j in range((self.i//file_threashold)):
