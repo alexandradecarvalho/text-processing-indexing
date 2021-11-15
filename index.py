@@ -26,6 +26,8 @@ class Index:
         self.stemmer = PorterStemmer()
 
     def merge_files(self,out_file, final_file,i, init=0):
+        print(i)
+        print(init)
 
         with open("temp"+out_file, 'w+') as output_file:
             open_files = [open((str(n) + ".").join(out_file.split('.'))) for n in range(init,i+1)]
@@ -50,7 +52,6 @@ class Index:
                         output_file.writelines("\n")
                         term = contents[0]
                         term_info= contents[1:]
-                        print(term_info)
                         term_info={item.split(":")[0]:int(item.split(":")[1].replace(",","")) for item in term_info}
                         output_file.write(contents[0] + " ")
                 else:
@@ -58,6 +59,9 @@ class Index:
                     term_info= contents[1:]
                     term_info={item.split(":")[0]:int(item.split(":")[1].replace(",","")) for item in term_info}
                     output_file.write(contents[0] + " ")
+            if term:
+                output_file.writelines(str(term_info).replace("{","").replace("}","").replace(": ",":"))
+                output_file.writelines("\n")
 
         os.remove("temp"+out_file)
 
@@ -80,7 +84,7 @@ class Index:
         else:
             j=0
             for j in range((self.i//file_threashold)):
-                self.merge_files(out_file,(str(j) + ".").join(out_file.split('.')),(j+1)*(self.i//file_threashold)-1, j*(file_threashold))
+                self.merge_files(out_file,(str(j) + ".").join(out_file.split('.')),(j+1)*(file_threashold)-1, j*(file_threashold))
             self.merge_files(out_file,(str(j+1) + ".").join(out_file.split('.')),self.i,(j+1)*(file_threashold))
             self.merge_files(out_file,out_file,j+1 )
 
