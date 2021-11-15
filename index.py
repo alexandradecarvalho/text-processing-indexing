@@ -8,7 +8,6 @@ Class Index
 import psutil
 import os
 import heapq
-import time
 import resource
 
 from tokenizer import Tokenizer
@@ -26,9 +25,6 @@ class Index:
         self.stemmer = PorterStemmer()
 
     def merge_files(self,out_file, final_file,i, init=0):
-        print(i)
-        print(init)
-
         with open("temp"+out_file, 'w+') as output_file:
             open_files = [open((str(n) + ".").join(out_file.split('.'))) for n in range(init,i+1)]
             output_file.writelines(heapq.merge(*open_files))
@@ -88,9 +84,9 @@ class Index:
             self.merge_files(out_file,(str(j+1) + ".").join(out_file.split('.')),self.i,(j+1)*(file_threashold))
             self.merge_files(out_file,out_file,j+1 )
 
-    def indexer(self, docs, out_file, threshold, length, stopwords, p):
-        init_time= time.time()
+        print(f'Temporary index segments: {self.i}')
 
+    def indexer(self, docs, out_file, threshold, length, stopwords, p):
         documents = {key:self.stemmer.stem(self.tokenizer.tokenize(text, filter=length, option=stopwords), option=p) for key,text in docs.items()}
 
         for doc_id,token_list in documents.items():
@@ -115,8 +111,4 @@ class Index:
                 self.npostings=0
                 self.i+=1
 
-
-        #print(f'Indexing time: {time.time()-init_time} s')
-        #print(f'Total index size on disk: {os.path.getsize(out_file)/(1024*1024)} MB' )
-        #print(f'Temporary index segments: {i+1}')
         return self.dictionary

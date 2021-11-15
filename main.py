@@ -11,6 +11,9 @@ from porter_stemmer import PorterStemmer
 from index import Index
 from searcher import Searcher
 
+import time
+import os
+
 arg_parser=ArgumentParser(prog='index creator')
 arg_parser.add_argument('-f','--file',nargs=1,help='File of dataset to be used', required=True)
 arg_parser.add_argument('-l','--length',nargs='?',type=int, default=3,help='Length filter default is 3 if value less than 1 the filter is disabled')
@@ -28,6 +31,7 @@ fname_out = "out.txt"
 
 nlines = 100
 
+init_time= time.time()
 while True:
     contents=parser.read_file_csv(nlines)
     if contents:
@@ -38,19 +42,12 @@ while True:
 parser.close_file()
 index.finalize(fname_out)
 
+print(f'Indexing time: {time.time()-init_time} s')
+print(f'Total index size on disk: {os.path.getsize(fname_out)/(1024*1024)} MB' )
+print(f'Vocabulary size: {sum(1 for line in open(fname_out))}')
 
-#print("---TOKENIZING DOCUMENTS--")
+init_time= time.time()
+s = Searcher(fname_out)
+print(f'Index searcher start up time: {time.time()-init_time} s')
 
-#contents_tokenized= {key:tokenizer.tokenize(text, filter=args.length, option=args.stopword) for key,text in contents.items()}
-
-#print("---STEMMING TOKENS--")
-
-#stemmed_tokens = {docID:stemmer.stem(token_list, option=args.p) for docID,token_list in contents_tokenized.items()}
-
-
-
-#print("---INDEXING--")
-
-#print("--SEARCHER--")
-#s = Searcher(fname_out)
-#s.search()
+s.search()
