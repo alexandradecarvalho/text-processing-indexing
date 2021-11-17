@@ -5,11 +5,13 @@ Authors: Alexandra Carvalho, Margarida Martins
 Class Searcher loads the dictionary from the disk, and its search function receives a term and returns its total frequency
 """
 
+from porter_stemmer import PorterStemmer
 
 class Searcher:
 
-    def __init__(self, index_file):
+    def __init__(self, index_file, stemmer):
         self.frequencies = dict()
+        self.stemmer=PorterStemmer() if stemmer else None
 
         f = open(index_file, 'r')
 
@@ -25,7 +27,12 @@ class Searcher:
             if not inpt:
                 break
 
+            inpt=inpt.lower()
+
+            if self.stemmer:
+                inpt= self.stemmer.stem([inpt])[0]
+
             if inpt in self.frequencies:
-                print(self.frequencies[inpt.lower()])
+                print(self.frequencies[inpt])
             else:
                 print(0)

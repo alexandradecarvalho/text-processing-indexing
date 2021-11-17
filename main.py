@@ -48,7 +48,7 @@ print(f'Total index size on disk: {os.path.getsize(fname_out)/(1024*1024)} MB' )
 print(f'Vocabulary size: {sum(1 for line in open(fname_out))}')
 
 init_time= time.time()
-s = Searcher(fname_out)
+s = Searcher(fname_out,args.p)
 print(f'Index searcher start up time: {time.time()-init_time} s')
 
 s.search()
