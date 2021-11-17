@@ -37,7 +37,7 @@ class Tokenizer:
 
         ##### SPLITTING BY SPACES AND PUNCTUATION #####
         text_tokens = re.split('\W+', doc) 
-        self.token_lists = [word.lower() for word in text_tokens if len(word) > length_threshold and not word in self.stopwords]
+        self.token_lists = [word.lower() for word in text_tokens if len(word) > length_threshold and not word.isnumeric() and not word in self.stopwords]
 
         return self.token_lists
 

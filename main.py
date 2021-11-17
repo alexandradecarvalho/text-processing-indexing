@@ -20,6 +20,7 @@ arg_parser.add_argument('-l','--length',nargs='?',type=int, default=3,help='Leng
 arg_parser.add_argument('-s','--stopword',nargs='?', default='stopwords.txt',help='File for stopword list if no file given no stopwords will be used')
 arg_parser.add_argument('-p',help='Disable porter stemmer', action='store_false')
 arg_parser.add_argument('-w',nargs='?',help='Use number of postings as threashold if flag not present default is memory usage', type=int, const=100000)
+arg_parser.add_argument('-d','--documents',nargs='?',type=int, default=500,help='Number of documents analysed in each iteration, by default is 500')
 args = arg_parser.parse_args()
 
 
@@ -29,7 +30,7 @@ index= Index()
 
 fname_out = "out.txt"
 
-nlines = 100
+nlines = args.documents
 
 init_time= time.time()
 while True:

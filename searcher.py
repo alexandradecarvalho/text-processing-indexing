@@ -26,6 +26,6 @@ class Searcher:
                 break
 
             if inpt in self.frequencies:
-                print(self.frequencies[inpt])
+                print(self.frequencies[inpt.lower()])
             else:
                 print(0)

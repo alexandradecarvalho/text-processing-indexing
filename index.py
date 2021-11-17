@@ -20,10 +20,11 @@ class Index:
         self.dictionary = dict()
         self.npostings=0
         self.i = 0
+        self.doc_id = 0
 
         self.tokenizer = Tokenizer()
         self.stemmer = PorterStemmer()
-
+ 
     def merge_files(self,out_file, final_file,i, init=0):
         with open("temp"+out_file, 'w+') as output_file:
             open_files = [open((str(n) + ".").join(out_file.split('.'))) for n in range(init,i+1)]
@@ -44,7 +45,7 @@ class Index:
                             term_i=term_i.split(":")
                             term_info[term_i[0]]= term_info.get(term_i[0],0)+ int(term_i[1].replace(",",""))
                     else:
-                        output_file.writelines(str(term_info).replace("{","").replace("}","").replace(": ",":"))
+                        output_file.writelines(str(term_info).replace("\"","").replace("'","").replace("{","").replace("}","").replace(": ",":"))
                         output_file.writelines("\n")
                         term = contents[0]
                         term_info= contents[1:]
@@ -56,7 +57,7 @@ class Index:
                     term_info={item.split(":")[0]:int(item.split(":")[1].replace(",","")) for item in term_info}
                     output_file.write(contents[0] + " ")
             if term:
-                output_file.writelines(str(term_info).replace("{","").replace("}","").replace(": ",":"))
+                output_file.writelines(str(term_info).replace("\"","").replace("'","").replace("{","").replace("}","").replace(": ",":"))
                 output_file.writelines("\n")
 
         os.remove("temp"+out_file)
@@ -68,7 +69,7 @@ class Index:
         
         #writing the ordered dict in the file
         for key in sorted(self.dictionary.keys()):
-            output_file.write(key + " " + str(self.dictionary[key]).replace("{","").replace("}","").replace(": ",":") + "\n")
+            output_file.write(key + " " + str(self.dictionary[key]).replace("\"","").replace("'","").replace("{","").replace("}","").replace(": ",":") + "\n")
         
         output_file.close()
 
@@ -91,11 +92,12 @@ class Index:
 
         for doc_id,token_list in documents.items():
             pos=0
+            self.doc_id += 1
             for token in token_list:
                 if not token in self.dictionary: 
                     self.dictionary[token] = dict()
-                self.dictionary[token][doc_id]=self.dictionary[token].get(doc_id,0)+1
-                
+                self.dictionary[token][self.doc_id]=self.dictionary[token].get(self.doc_id,0)+1
+
                 self.npostings+=1
 
             if (not threshold and psutil.virtual_memory().percent >= 90) or (threshold and self.npostings >= threshold) :
@@ -104,7 +106,7 @@ class Index:
                 
                 #writing the ordered dict in the file
                 for key in sorted(self.dictionary.keys()):
-                    output_file.write(key + " " + str(self.dictionary[key]).replace("{","").replace("}","").replace(": ",":") + "\n")
+                    output_file.write(key + " " + str(self.dictionary[key]).replace("\"","").replace("'","").replace("{","").replace("}","").replace(": ",":") + "\n")
                 
                 output_file.close()
                 self.dictionary=dict()
