@@ -1,4 +1,8 @@
-# text-processing-indexing
+# Information Retrieval Assignment 1 2021/2022
+## Authors: Alexandra Carvalho, Margarida Martins
+
+<br>
+<br>
 
 ## Running options
 
@@ -11,13 +15,21 @@
 | -w [int] | Set the temporary index segment write criteria to be number of words read (default 100000) instead of memory usage  |
 | -d | Set the number of documents to be read each time from the dataset (default 500)|
 
+<br>
 
+### Example
+```
+python3 main.py -f datasets/amazon_reviews_us_Digital_Video_Games_v1_00.tsv -l 0 -w -s -w 50000 -d 1000
+```
+
+<br>
+<br>
 
 ## Statistics
 
+<br>
 
-
-### Max time possible
+### **Max time possible**
 
 Min word length 0  without stopwords and with porter stemmer 
 
@@ -54,29 +66,15 @@ python3 main.py -f datasets/amazon_reviews_us_Music_v1_00.tsv -l 0 -w -s
 
 | |Margarida| Alexandra |
 |:-----|:--------:|:-----:|
-| Temporary index segments | 861| 5927 |
+| Temporary index segments | 5927| 5927 |
 | Indexing time (s) | 36851.92 |  3895.48  |
 | Total index size on disk (MB) | 3602.25| 3602.25 |
 | Vocabulary size | 958413|958413|
 |Index searcher start up time (s) | 48.40 |26.66|
 
+<br>
 
-
-```
-python3 main.py -f datasets/amazon_reviews_us_Books_v1_00.tsv -l 0 -w -s
-```
-
-|                                  | Margarida | Alexandra |
-| :------------------------------- | :-------: | :-------: |
-| Temporary index segments         |           |           |
-| Indexing time (s)                |           |           |
-| Total index size on disk (MB)    |           |           |
-| Vocabulary size                  |           |           |
-| Index searcher start up time (s) |           |           |
-
-
-
-### Average 
+### **Average**
 
 Min word length 3 with default stopwords (NLTK) and with porter stemmer 
 
@@ -107,24 +105,6 @@ python3 main.py -f datasets/amazon_reviews_us_Digital_Music_Purchase_v1_00.tsv -
 |Index searcher start up time (s) | 4.49 |2.34|
 
 ```
-python3 main.py -f datasets/amazon_reviews_us_Books_v1_00.tsv -l 3
-```
-
-| |Margarida| Alexandra |
-|:-----|:--------:|------:|
-| Temporary index segments | 3| |
-| Indexing time (s) | 11637.22 | |
-| Total index size on disk (MB) | 4489.20| |
-| Vocabulary size | 1146385 ||
-|Index searcher start up time (s) | 59.06 ||
-
-
-
-### Comparar porter stemmer
-tamanho 3 sem porter stemmer e com stopwords default
-
-
-```
 python3 main.py -f datasets/amazon_reviews_us_Music_v1_00.tsv -l 3 -w
 ```
 
@@ -139,9 +119,23 @@ python3 main.py -f datasets/amazon_reviews_us_Music_v1_00.tsv -l 3 -w
 
 
 
- 
+```
+python3 main.py -f datasets/amazon_reviews_us_Books_v1_00.tsv -l 3
+```
 
-### Comparing Porter Stemmer Performance
+| |Margarida| Alexandra |
+|:-----|:--------:|------:|
+| Temporary index segments | 4| |
+| Indexing time (s) | 71244.53 | |
+| Total index size on disk (MB) | 4489.20| |
+| Vocabulary size | 1146385 ||
+|Index searcher start up time (s) | 86.13 ||
+
+<br>
+
+
+
+### **Comparing Porter Stemmer Performance**
 
 Min word length 3 with default stopwords (NLTK) and without porter stemmer
 
@@ -157,8 +151,6 @@ python3 main.py -f datasets/amazon_reviews_us_Digital_Video_Games_v1_00.tsv -l 3
 | Vocabulary size | 67905 |43.00|
 |Index searcher start up time (s) | 0.47 |0.20|
 
-
-
 ```
 python3 main.py -f datasets/amazon_reviews_us_Digital_Music_Purchase_v1_00.tsv -l 3 -w -p
 ```
@@ -171,7 +163,17 @@ python3 main.py -f datasets/amazon_reviews_us_Digital_Music_Purchase_v1_00.tsv -
 | Vocabulary size | 360326 |360326|
 |Index searcher start up time (s) | 4.69 |2.83|
 
+```
+python3 main.py -f datasets/amazon_reviews_us_Music_v1_00.tsv -l 3 -w -p
+```
 
+| |Margarida| Alexandra |
+|:-----|:--------:|:-----:|
+| Temporary index segments |  |3384 |
+| Indexing time (s) | | 1402.77 |
+| Total index size on disk (MB) | | 2611.59 |
+| Vocabulary size |  |1162931|
+|Index searcher start up time (s) |  |13.57|
 
 
 ```
@@ -186,6 +188,9 @@ python3 main.py -f datasets/amazon_reviews_us_Music_v1_00.tsv -l 3  -p
 | Vocabulary size | 1162931 ||
 |Index searcher start up time (s) | 37.19 ||
 
+
+
+
 ```
 python3 main.py -f datasets/amazon_reviews_us_Books_v1_00.tsv -l 3 -p
 ```
@@ -198,39 +203,26 @@ python3 main.py -f datasets/amazon_reviews_us_Books_v1_00.tsv -l 3 -p
 | Vocabulary size | 1417663 ||
 |Index searcher start up time (s) | 63.93 ||
 
-
-tamanho 3 sem porter stemmer e com stopwords default com poucas palavras
-
 ```
-python3 main.py -f datasets/amazon_reviews_us_Music_v1_00.tsv -l 3 -w -p
+python3 main.py -f datasets/amazon_reviews_us_Books_v1_00.tsv -l 3 -p -w
 ```
 
 | |Margarida| Alexandra |
-|:-----|:--------:|:-----:|
-| Temporary index segments | 2| 3384 |
-| Indexing time (s) | 2079.60 | 1402.77 |
-| Total index size on disk (MB) | 2611.59| 2611.59 |
-| Vocabulary size | 1162931 |1162931|
-|Index searcher start up time (s) | 37.19 |13.57|
+|:-----|:--------:|------:|
+| Temporary index segments | | 6014|
+| Indexing time (s) |  | 2986.64|
+| Total index size on disk (MB) |  | 4668.44 |
+| Vocabulary size |  |1417663|
+|Index searcher start up time (s) |  |29.91|
 
 
 
 
-```
-python3 main.py -f datasets/amazon_reviews_us_Books_v1_00.tsv -l 3 -w -p
-```
-
-|                                  | Margarida | Alexandra |
-| :------------------------------- | :-------: | --------: |
-| Temporary index segments         |           |           |
-| Indexing time (s)                |           |           |
-| Total index size on disk (MB)    |           |           |
-| Vocabulary size                  |           |           |
-| Index searcher start up time (s) |           |           |
+<br>
 
 
 
-### Testing Threshold of Number of Postings  
+### **Testing Threshold of Number of Postings**
 
 Min word length 3 with default stopwords (NLTK) and without porter stemmer, and with a small number of words at a time
 
@@ -277,16 +269,4 @@ python3 main.py -f datasets/amazon_reviews_us_Music_v1_00.tsv -l 3 -p -w 2000
 
 
 
-
-```
-python3 main.py -f datasets/amazon_reviews_us_Books_v1_00.tsv -l 3 -p -w 2000
-```
-
-|                                  | Margarida | Alexandra |
-| :------------------------------- | :-------: | --------: |
-| Temporary index segments         |           |           |
-| Indexing time (s)                |           |           |
-| Total index size on disk (MB)    |           |           |
-| Vocabulary size                  |           |           |
-| Index searcher start up time (s) |           |           |
 
