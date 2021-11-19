@@ -2,7 +2,7 @@
 Information Retrieval Assignment 1 2021/2022
 Authors: Alexandra Carvalho, Margarida Martins
 
-Class Searcher loads the dictionary from the disk, and its search function receives a term and returns its total frequency
+Class Searcher loads the dictionary from the disk, and its search function receives a term and returns its total  frequency
 """
 
 from porter_stemmer import PorterStemmer

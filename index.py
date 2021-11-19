@@ -26,6 +26,8 @@ class Index:
         self.stemmer = PorterStemmer()
  
     def merge_files(self,out_file, final_file,i, init=0):
+        
+        # write all lines from all temporary segments in order to temp file
         with open("temp"+out_file, 'w+') as output_file:
             open_files = [open((str(n) + ".").join(out_file.split('.'))) for n in range(init,i+1)]
             output_file.writelines(heapq.merge(*open_files))
@@ -33,6 +35,7 @@ class Index:
 
         [os.remove((str(n) + ".").join(out_file.split('.'))) for n in range(init,i+1)]
 
+        # write to final output file the temporary file merge result
         with open("temp"+out_file, 'r') as temp_file, open(final_file,'w') as output_file:
             term = ""
             postings_list = dict()
@@ -75,7 +78,7 @@ class Index:
 
         file_threashold= resource.getrlimit(resource.RLIMIT_NOFILE)[0]//2
 
-        #merge files
+        #merge segments, do it in two times if the number of segments is to high
         if self.i < file_threashold:
             self.merge_files(out_file, out_file, self.i)
         else:
@@ -87,7 +90,10 @@ class Index:
 
         print(f'Temporary index segments: {self.i}')
 
+    
     def indexer(self, docs, out_file, threshold, length, stopwords, p):
+
+        #tokanization and stemmig of the documents 
         documents = {key:self.stemmer.stem(self.tokenizer.tokenize(text, filter=length, option=stopwords), option=p) for key,text in docs.items()}
 
         for doc_id,token_list in documents.items():
@@ -100,6 +106,7 @@ class Index:
 
                 self.npostings+=1
 
+            #saving segment to a temporary file
             if (not threshold and psutil.virtual_memory().percent >= 90) or (threshold and self.npostings >= threshold) :
                 sep = str(self.i) + "."
                 output_file=open(sep.join(out_file.split('.')), "w")
